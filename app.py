@@ -1,10 +1,6 @@
-from storage import *
+from database import init_db
+from bot import main
 
-subscribe(12345)
-subscribe(67890)
-
-print(load_subscribers())
-
-unsubscribe(12345)
-
-print(load_subscribers())
+if __name__ == "__main__":
+    init_db()
+    main()

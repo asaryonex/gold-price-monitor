@@ -65,5 +65,5 @@ if __name__ == "__main__":
 
     prices = parse_prices(html)
 
-    print("\nToday's Coimbatore Gold Price\n")
-    print(prices)
+    logger.info("\nToday's Coimbatore Gold Price\n")
+    logger.info(prices)

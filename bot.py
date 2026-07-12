@@ -1,4 +1,5 @@
 import asyncio
+from logger import logger
 
 from telegram import Update
 from telegram.ext import (
@@ -9,10 +10,10 @@ from telegram.ext import (
 
 from config import BOT_TOKEN, CHECK_INTERVAL
 from scraper import fetch_html, parse_prices
-from storage import (
+from database import (
     subscribe,
     unsubscribe,
-    load_subscribers,
+    get_subscribers,
 )
 from monitor import monitor_prices
 
@@ -73,7 +74,7 @@ async def unsubscribe_command(update: Update, context: ContextTypes.DEFAULT_TYPE
 
 
 async def subscribers(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    count = len(load_subscribers())
+    count = len(get_subscribers())
 
     await update.message.reply_text(
         f"👥 Total Subscribers: {count}"
@@ -106,9 +107,9 @@ def main():
     app.add_handler(CommandHandler("unsubscribe", unsubscribe_command))
     app.add_handler(CommandHandler("subscribers", subscribers))
 
-    print("=" * 50)
-    print("Gold Price Monitor Bot Started")
-    print("=" * 50)
+    logger.info("=" * 50)
+    logger.info("Gold Price Monitor Bot Started")
+    logger.info("=" * 50)
 
     app.run_polling()
 
