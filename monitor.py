@@ -19,6 +19,9 @@ async def monitor_prices(application, interval):
             current = parse_prices(fetch_html())
             previous = latest_price()
 
+            logger.info("Previous: %s", previous)
+            logger.info("Current : %s", current)
+
             # First run: save current prices without sending alerts
             if previous is None:
                 insert_price(
