@@ -2,7 +2,9 @@ import re
 import httpx
 from bs4 import BeautifulSoup
 from config import GOODRETURNS_URL
+import logging
 
+logger = logging.getLogger(__name__)
 
 def fetch_html():
     headers = {
@@ -25,35 +27,38 @@ def fetch_html():
     return response.text
 
 
+import re
+import logging
+from bs4 import BeautifulSoup
+
+logger = logging.getLogger(__name__)
+
 def parse_prices(html: str):
     soup = BeautifulSoup(html, "lxml")
 
     table = soup.find("table")
-
     if table is None:
         raise Exception("Price table not found.")
 
-    rows = table.find_all("tr")
-
-    for row in rows:
-
-        cols = [
-            td.get_text(" ", strip=True)
-            for td in row.find_all(["td", "th"])
-        ]
+    for row in table.find_all("tr"):
+        cols = [td.get_text(" ", strip=True) for td in row.find_all(["td", "th"])]
 
         if not cols:
             continue
 
-        # First row containing 1 Gram price
         if cols[0] == "1":
+            logger.info("cols = %s", cols)
 
-            price24 = int(re.sub(r"[^\d]", "", cols[1]))
-            price22 = int(re.sub(r"[^\d]", "", cols[2]))
+            # Extract the first ₹ amount only
+            m24 = re.search(r"₹\s*([\d,]+)", cols[1])
+            m22 = re.search(r"₹\s*([\d,]+)", cols[2])
+
+            if not m24 or not m22:
+                raise Exception(f"Unable to parse prices: {cols}")
 
             return {
-                "24K": price24,
-                "22K": price22,
+                "24K": int(m24.group(1).replace(",", "")),
+                "22K": int(m22.group(1).replace(",", "")),
             }
 
     raise Exception("Unable to locate 1 gram row.")

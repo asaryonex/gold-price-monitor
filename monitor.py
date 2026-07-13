@@ -1,11 +1,13 @@
 import asyncio
 import logging
 
+from telegram.error import BadRequest, Forbidden, TelegramError
 from scraper import fetch_html, parse_prices
 from database import (
     latest_price,
     insert_price,
     get_subscribers,
+    unsubscribe,
 )
 
 logger = logging.getLogger(__name__)
@@ -43,25 +45,42 @@ async def monitor_prices(application, interval):
                     f"22K : ₹{current['22K']:,}"
                 )
 
-                for chat_id in get_subscribers():
+                subscribers = get_subscribers()
+                logger.info("Subscribers: %s", subscribers)
+
+                for chat_id in subscribers:
                     try:
                         await application.bot.send_message(
                             chat_id=chat_id,
                             text=message,
                         )
-                    except Exception as ex:
-                        logger.exception(
-                            "Failed to send message to %s: %s",
+
+                        logger.info("✅ Sent to %s", chat_id)
+
+                    except (BadRequest, Forbidden) as ex:
+                        logger.warning(
+                            "Removing invalid subscriber %s (%s)",
+                            chat_id,
+                            ex,
+                        )
+                        unsubscribe(chat_id)
+
+                    except TelegramError as ex:
+                        logger.warning(
+                            "Telegram error for %s: %s",
                             chat_id,
                             ex,
                         )
 
+                    except Exception:
+                        logger.exception(
+                            "Unexpected error while sending to %s",
+                            chat_id,
+                        )
+
                 logger.info("Price changed: %s", current)
 
-            else:
-                logger.info("No price change")
-
         except Exception:
-            logger.exception("Error while checking prices")
+            logger.exception("Error while monitoring prices")
 
         await asyncio.sleep(interval)

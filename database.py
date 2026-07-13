@@ -72,7 +72,15 @@ def get_subscribers():
 
     conn.close()
 
-    return [row[0] for row in rows]
+    subscribers = [row[0] for row in rows]
+    print("Subscribers:", subscribers)   # Temporary debug
+    return subscribers
+
+def clear_subscribers():
+    conn = get_connection()
+    conn.execute("DELETE FROM subscribers")
+    conn.commit()
+    conn.close()
 
 
 def insert_price(city, gold24, gold22):
