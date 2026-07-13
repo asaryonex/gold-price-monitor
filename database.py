@@ -128,6 +128,7 @@ def load_prices():
 
 def insert_price(city, gold24, gold22):
     conn = get_connection()
+
     conn.execute("""
         INSERT INTO gold_prices(
             city,
@@ -137,10 +138,11 @@ def insert_price(city, gold24, gold22):
         )
         VALUES (?, ?, ?, ?)
     """, (
-        city,insert_price
+        city,
         gold24,
         gold22,
         datetime.now().isoformat(),
     ))
+
     conn.commit()
     conn.close()
