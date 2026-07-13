@@ -126,9 +126,22 @@ def load_prices():
     return latest_price()
 
 
-def insert_price(prices):
-    insert_price(
-        "Coimbatore",
-        prices["24K"],
-        prices["22K"],
-    )
+def insert_price(city, gold24, gold22):
+    conn = get_connection()
+    conn.execute("""
+        INSERT INTO gold_prices(
+            city,
+            gold24,
+            gold22,
+            created_at
+        )
+        VALUES (?, ?, ?, ?)
+    """, (
+        city,
+        gold24,
+        gold22,
+        datetime.now().isoformat(),
+    ))
+    conn.commit()
+    conn.close()
+    

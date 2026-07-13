@@ -21,7 +21,7 @@ async def monitor_prices(application, interval):
 
             # First run: save current prices without sending alerts
             if previous is None:
-                save_price(
+                insert_price(
                     "Coimbatore",
                     current["24K"],
                     current["22K"],
@@ -29,10 +29,10 @@ async def monitor_prices(application, interval):
                 logger.info("Initial prices saved: %s", current)
 
             elif current != previous:
-                save_price(
-                "Coimbatore",
-                current["24K"],
-                current["22K"],
+                insert_price(
+                    "Coimbatore",
+                    current["24K"],
+                    current["22K"],
                 )
                 message = (
                     "📢 Gold Price Updated\n\n"
