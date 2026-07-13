@@ -137,11 +137,10 @@ def insert_price(city, gold24, gold22):
         )
         VALUES (?, ?, ?, ?)
     """, (
-        city,
+        city,insert_price
         gold24,
         gold22,
         datetime.now().isoformat(),
     ))
     conn.commit()
     conn.close()
-    
